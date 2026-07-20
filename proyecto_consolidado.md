@@ -151,13 +151,13 @@ public class Wallet {
 ```java
 package ec.edu.espe.lab2ci.repository;
 
-import ec.edu.espe.lab2ci.model.Wallet;
-
 import java.util.Optional;
 
 public interface WalletRepository {
     Wallet save(Wallet wallet);
+
     Optional<Wallet> findById(String id);
+
     boolean existsByOwnerEmail(String ownerEmail);
 }
 
@@ -182,9 +182,6 @@ public interface RiskClient {
 ```java
 package ec.edu.espe.lab2ci.service;
 
-import ec.edu.espe.lab2ci.dto.WalletResponse;
-import ec.edu.espe.lab2ci.model.Wallet;
-import ec.edu.espe.lab2ci.repository.WalletRepository;
 import lombok.AllArgsConstructor;
 
 import java.util.Optional;
@@ -220,13 +217,13 @@ public class WalletService {
     }
 
     // depositar dinero
-    public double deposit(String walletId, double amount){
-        if(amount <= 0){
+    public double deposit(String walletId, double amount) {
+        if (amount <= 0) {
             throw new IllegalArgumentException("Deposit ammount must be > 0");
         }
 
         Optional<Wallet> found = walletRepository.findById(walletId);
-        if(found.isEmpty()){
+        if (found.isEmpty()) {
             throw new IllegalStateException("Wallet not found");
         }
 
@@ -240,15 +237,15 @@ public class WalletService {
 
     }
 
-    public double withdraw(String walletId, double amount){
-        if(amount <= 0){
+    public double withdraw(String walletId, double amount) {
+        if (amount <= 0) {
             throw new IllegalArgumentException("Withdraw amount must be > 0");
         }
 
         Wallet wallet = walletRepository.findById(walletId)
                 .orElseThrow(() -> new IllegalStateException("Wallet not found"));
 
-        if(wallet.getBalance() < amount ){
+        if (wallet.getBalance() < amount) {
             throw new IllegalStateException("Insufficient funds");
         }
 
@@ -298,9 +295,6 @@ class Lab2CiApplicationTests {
 ```java
 package ec.edu.espe.lab2ci.service;
 
-import ec.edu.espe.lab2ci.dto.WalletResponse;
-import ec.edu.espe.lab2ci.model.Wallet;
-import ec.edu.espe.lab2ci.repository.WalletRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -318,7 +312,7 @@ public class WalletServiceTest {
 
     // arrange común de cada prueba
     @BeforeEach
-    public void setUp(){
+    public void setUp() {
         walletRepository = Mockito.mock(WalletRepository.class);
         riskClient = Mockito.mock(RiskClient.class);
         walletService = new WalletService(walletRepository, riskClient);
@@ -326,7 +320,7 @@ public class WalletServiceTest {
 
     // crear wallet valida y devolver respuesta
     @Test
-    void createWalletWithValidDataShouldSaveAndReturnResponse(){
+    void createWalletWithValidDataShouldSaveAndReturnResponse() {
         // Arrange
         String email = "estiven.ona@espe.edu.ec";
         double balance = 150.00;
@@ -340,7 +334,7 @@ public class WalletServiceTest {
         WalletResponse response = walletService.createWallet(email, balance);
 
         //Assert
-        AssertionErrors.assertNotNull("Id Wallet no Debe Ser Null",response.getWalletId());
+        AssertionErrors.assertNotNull("Id Wallet no Debe Ser Null", response.getWalletId());
         Assertions.assertEquals(balance, response.getBalance());
 
         Mockito.verify(riskClient).isBlocked(email);
@@ -349,21 +343,21 @@ public class WalletServiceTest {
     }
 
     @Test
-    void createWalletWithInvalidDataShouldThrowExceptionAndNotCallDependencies(){
+    void createWalletWithInvalidDataShouldThrowExceptionAndNotCallDependencies() {
         // Arrange
         String invalid = "estiven.ona-espe.edu.ec";
         double balance = 15.00;
 
         // Act + Assert
         Assertions.assertThrows(IllegalArgumentException.class, () ->
-            walletService.createWallet(invalid, balance));
+                walletService.createWallet(invalid, balance));
 
         //Verificar no interacción
         Mockito.verifyNoInteractions(riskClient, walletRepository);
     }
 
     @Test
-    void depositWalletNotFoundShouldThrowException(){
+    void depositWalletNotFoundShouldThrowException() {
         // Arrange
         String walletId = "no-existe";
 
@@ -378,7 +372,7 @@ public class WalletServiceTest {
     }
 
     @Test
-    void depositShouldUpdateBalanceAndSaveUsingCaptor(){
+    void depositShouldUpdateBalanceAndSaveUsingCaptor() {
         // Arrange
         Wallet wallet = new Wallet("estiven.ona@espe.edu.ec", 150.00);
         String walletId = wallet.getId();
@@ -402,7 +396,7 @@ public class WalletServiceTest {
 //    }
 
     @Test
-    void withdrawWithInsufficientFundsShouldThrowExceptionAndNotSave(){
+    void withdrawWithInsufficientFundsShouldThrowExceptionAndNotSave() {
         // Arrange
         Wallet wallet = new Wallet("estiven.ona@espe.edu.ec", 150.00);
         String walletId = wallet.getId();
